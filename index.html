@@ -1,84 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galaxy Animation</title>
-    <style>
-        body { margin: 0; overflow: hidden; background: black; }
-        canvas { display: block; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Galaxy Animation</title>
+<style>
+body { margin: 0; overflow: hidden; background: black; }
+canvas { display: block; }
+</style>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
-    <script>
-        const canvas = document.getElementById("canvas");
-        const ctx = canvas.getContext("2d");
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        
-        let particles = [];
-        let numParticles = 150;
-        let angle = 0;
-        
-        const sunImage = new Image();
-        sunImage.src = "image1.jpg";
-        const planet1Image = new Image();
-        planet1Image.src = "image2.png";
-        const planet2Image = new Image();
-        planet2Image.src = "image3.gif";
-        
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 1;
-                this.speedX = (Math.random() * 1 - 0.5);
-                this.speedY = (Math.random() * 1 - 0.5);
-            }
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
-                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
-            }
-            draw() {
-                ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-        
-        function createParticles() {
-            for (let i = 0; i < numParticles; i++) {
-                particles.push(new Particle());
-            }
-        }
-        
-        function drawPlanets() {
-            let centerX = canvas.width / 2;
-            let centerY = canvas.height / 2;
-            
-            ctx.drawImage(sunImage, centerX - 100, centerY - 100, 200, 200);
-            ctx.drawImage(planet1Image, centerX + Math.cos(angle) * 300 - 60, centerY + Math.sin(angle) * 300 - 60, 120, 120);
-            ctx.drawImage(planet2Image, centerX + Math.cos(angle * 1.5) * 450 - 75, centerY + Math.sin(angle * 1.5) * 450 - 75, 150, 150);
-        }
-        
-        function animate() {
-            ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => {
-                p.update();
-                p.draw();
-            });
-            drawPlanets();
-            angle += 0.01;
-            requestAnimationFrame(animate);
-        }
-        
-        createParticles();
-        animate();
-    </script>
+<canvas id="canvas"></canvas>
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+let numParticles = 150;
+let angle = 0;
+
+const sunImage = new Image();
+sunImage.src = "image1.jpg";
+const planet1Image = new Image();
+planet1Image.src = "image2.png";
+const planet2Image = new Image();
+planet2Image.src = "image3.gif";
+
+class Particle {
+    constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 1;
+        this.speedX = (Math.random() * 1 - 0.5);
+        this.speedY = (Math.random() * 1 - 0.5);
+    }
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+    }
+    draw() {
+        ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+function createParticles() {
+    for (let i = 0; i < numParticles; i++) {
+        particles.push(new Particle());
+    }
+}
+
+function drawRoundedImage(image, x, y, size) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x, y, size / 2, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.clip();
+    ctx.drawImage(image, x - size / 2, y - size / 2, size, size);
+    ctx.restore();
+}
+
+function drawPlanets() {
+    let centerX = canvas.width / 2;
+    let centerY = canvas.height / 2;
+
+    // Ensure 5% space on all sides
+    let margin = 0.05; // 5% margin
+    let maxOrbitRadiusX = (canvas.width * (1 - margin * 2)) / 2;
+    let maxOrbitRadiusY = (canvas.height * (1 - margin * 2)) / 2;
+    let orbitRadius1 = Math.min(maxOrbitRadiusX, maxOrbitRadiusY) * 0.5; // Smaller radius for planet1
+    let orbitRadius2 = Math.min(maxOrbitRadiusX, maxOrbitRadiusY) * 0.75; // Smaller radius for planet2
+
+    // Draw sun
+    let sunSize = canvas.width * 0.1; // 10% of canvas width
+    drawRoundedImage(sunImage, centerX, centerY, sunSize);
+
+    // Draw planet1
+    let planet1Size = canvas.width * 0.05; // 5% of canvas width
+    let planet1X = centerX + Math.cos(angle) * orbitRadius1;
+    let planet1Y = centerY + Math.sin(angle) * orbitRadius1;
+    drawRoundedImage(planet1Image, planet1X, planet1Y, planet1Size);
+
+    // Draw planet2
+    let planet2Size = canvas.width * 0.06; // 6% of canvas width
+    let planet2X = centerX + Math.cos(angle * 1.5) * orbitRadius2;
+    let planet2Y = centerY + Math.sin(angle * 1.5) * orbitRadius2;
+    drawRoundedImage(planet2Image, planet2X, planet2Y, planet2Size);
+}
+
+function animate() {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+        p.update();
+        p.draw();
+    });
+    drawPlanets();
+    angle += 0.005; // Slowed down the animation by reducing the increment value
+    requestAnimationFrame(animate);
+}
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    createParticles();
+}
+
+window.addEventListener('resize', resizeCanvas);
+
+createParticles();
+animate();
+</script>
+
 </body>
 </html>
