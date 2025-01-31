@@ -29,11 +29,11 @@ input[type="range"] {
 <div id="controls">
     <div class="slider-container">
         <label for="particleSlider">Particles</label>
-        <input type="range" id="particleSlider" min="10" max="10000" value="100">
+        <input type="range" id="particleSlider" min="1" max="100000" value="100">
         <label for="speedSlider">Speed</label>
         <input type="range" id="speedSlider" min="0.1" max="20" step="0.1" value="1">
         <label for="sizeSlider">Size</label>
-        <input type="range" id="sizeSlider" min="1" max="5" step="0.1" value="1">
+        <input type="range" id="sizeSlider" min="0.5" max="5" step="0.1" value="1">
     </div>
 </div>
 <script>
@@ -126,19 +126,27 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
+function announceValue(value) {
+    const utterance = new SpeechSynthesisUtterance(value);
+    speechSynthesis.speak(utterance);
+}
+
 particleSlider.addEventListener("input", () => {
     numParticles = parseInt(particleSlider.value);
     createParticles();
+    announceValue(particleSlider.value);
 });
 
 speedSlider.addEventListener("input", () => {
     speedFactor = parseFloat(speedSlider.value);
     createParticles();
+    announceValue(speedSlider.value);
 });
 
 sizeSlider.addEventListener("input", () => {
     sizeFactor = parseFloat(sizeSlider.value);
     createParticles();
+    announceValue(sizeSlider.value);
 });
 
 function resizeCanvas() {
